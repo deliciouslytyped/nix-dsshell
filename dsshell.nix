@@ -9,14 +9,20 @@ let
       ${val}
     }
     '') s; #TODO this doesnt seem too good
-in
-  stdenv.mkDerivation { #TODO just be a lib function that returns a shellhook instead of a derivation?
-    name = "dsshell";
-    shellHook = ''
-      ${lib.concatStringsSep "\n\n" (funcsToStringList shellFuncs)}
 
-      reloadShell () { #TODO some kind of shell variable so you can reload a user specified file containing the current scripts or whatever
-        exec nix-shell ${shellNix}
-        }
-      '';
-    }
+  shellHook = ''
+    ${lib.concatStringsSep "\n\n" (funcsToStringList shellFuncs)}
+
+    reloadShell () { #TODO some kind of shell variable so you can reload a user specified file containing the current scripts or whatever
+      exec nix-shell ${shellNix}
+      }
+    '';
+
+in {
+  inherit shellHook;
+
+  derivation = stdenv.mkDerivation { #TODO just be a lib function that returns a shellhook instead of a derivation?
+      name = "dsshell";
+      inherit shellHook;
+      };
+  }
